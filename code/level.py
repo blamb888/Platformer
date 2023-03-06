@@ -1,13 +1,17 @@
 import pygame
 from support import import_csv_layout, import_cut_graphics
-from settings import tile_size
+from settings import *
 from tiles import Tile, StaticTile, Coin
+from background import Background
+
 
 class Level:
     def __init__(self, level_data, surface):
         # general setup
         self.display_surface = surface
         self.world_shift = 0
+        
+        self.background = Background(surface)
         
         # terrain setup
         terrain_layout = import_csv_layout(level_data['terrain'])
@@ -31,17 +35,17 @@ class Level:
                     y = row_index * tile_size
 
                     if type == 'terrain':
-                        terrain_tile_list = import_cut_graphics('graphics/terrain/Tileset00.png')
+                        terrain_tile_list = import_cut_graphics('graphics/terrain/Tileset.png')
                         tile_surface = terrain_tile_list[int(val)]
                         sprite = StaticTile(tile_size, x, y, tile_surface)
                         
                     if type == 'decoration':
-                        decoration_tile_list = import_cut_graphics('graphics/terrain/Tileset00.png')
+                        decoration_tile_list = import_cut_graphics('graphics/terrain/Tileset.png')
                         tile_surface = decoration_tile_list[int(val)]
                         sprite = StaticTile(tile_size, x, y, tile_surface)
                     
                     if type == 'coins':
-                        coin_tile_list = import_cut_graphics('graphics/terrain/Tileset00.png')
+                        coin_tile_list = import_cut_graphics('graphics/terrain/Tileset.png')
                         tile_surface = coin_tile_list[int(val)]
                         sprite = Coin(tile_size, x, y, 4)
                         
@@ -51,6 +55,9 @@ class Level:
     
     def run(self):
         # run the entire game / level
+        
+        # background
+        self.background.update(self.world_shift)
         
         # terrain
         self.terrain_sprites.update(self.world_shift)
@@ -63,3 +70,6 @@ class Level:
         # coin
         self.coin_sprites.update(self.world_shift)
         self.coin_sprites.draw(self.display_surface)
+    
+    def shift_world(self, shift_x):
+        self.world_shift += shift_x

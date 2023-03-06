@@ -33,7 +33,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.image = self.images[self.index]
         self.animation_speed = animation_speed
         self.counter = 0
-        self.rect = self.image.get_rect(topleft = (x,y))
+        self.rect = self.image.get_rect(center=(x + size // 2, y + size // 2))  # use center position
 
     def update(self, shift):
         self.rect.x += shift
