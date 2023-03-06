@@ -6,4 +6,4 @@ level_0 = {
 		'enemies':'levels/0/level_0_enemies.csv',
 		'constraints':'levels/0/level_0_constraints.csv',
 		'player': 'levels/0/level_0_player.csv',
-		'decorations': 'levels/0/level_0_decorations.csv'}
+		'decoration': 'levels/0/level_0_decoration.csv'}
