@@ -1,7 +1,7 @@
 import pygame
 from support import import_csv_layout, import_cut_graphics
 from settings import tile_size
-from tiles import Tile, StaticTile
+from tiles import Tile, StaticTile, Coin
 
 class Level:
     def __init__(self, level_data, surface):
@@ -16,6 +16,10 @@ class Level:
         # decoration setup
         decoration_layout = import_csv_layout(level_data['decoration'])
         self.decoration_sprites = self.create_tile_group(decoration_layout, 'decoration')
+
+        # coin setup
+        coin_layout = import_csv_layout(level_data['coins'])
+        self.coin_sprites = self.create_tile_group(coin_layout, 'coins')
         
     def create_tile_group(self, layout, type):
         sprite_group = pygame.sprite.Group()
@@ -35,6 +39,11 @@ class Level:
                         decoration_tile_list = import_cut_graphics('graphics/terrain/Tileset00.png')
                         tile_surface = decoration_tile_list[int(val)]
                         sprite = StaticTile(tile_size, x, y, tile_surface)
+                    
+                    if type == 'coins':
+                        coin_tile_list = import_cut_graphics('graphics/terrain/Tileset00.png')
+                        tile_surface = coin_tile_list[int(val)]
+                        sprite = Coin(tile_size, x, y, 4)
                         
                     sprite_group.add(sprite)
                     
@@ -50,3 +59,7 @@ class Level:
         # decoration
         self.decoration_sprites.update(self.world_shift)
         self.decoration_sprites.draw(self.display_surface)
+        
+        # coin
+        self.coin_sprites.update(self.world_shift)
+        self.coin_sprites.draw(self.display_surface)
