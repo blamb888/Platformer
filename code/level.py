@@ -1,7 +1,7 @@
 import pygame
 from support import import_csv_layout, import_cut_graphics
 from settings import *
-from tiles import Tile, StaticTile, Coin
+from tiles import Tile, StaticTile, MIAnimatedTile, Coin
 from background import Background
 
 
@@ -9,7 +9,7 @@ class Level:
     def __init__(self, level_data, surface):
         # general setup
         self.display_surface = surface
-        self.world_shift = 0
+        self.world_shift = -1
         
         self.background = Background(surface)
         
@@ -24,6 +24,10 @@ class Level:
         # coin setup
         coin_layout = import_csv_layout(level_data['coins'])
         self.coin_sprites = self.create_tile_group(coin_layout, 'coins')
+        
+        # multiple image animation practice
+        mi_coin_layout = import_csv_layout(level_data['mi_coins'])
+        self.mi_coin_sprites = self.create_tile_group(mi_coin_layout, 'mi_coins')
         
     def create_tile_group(self, layout, type):
         sprite_group = pygame.sprite.Group()
@@ -45,9 +49,10 @@ class Level:
                         sprite = StaticTile(tile_size, x, y, tile_surface)
                     
                     if type == 'coins':
-                        coin_tile_list = import_cut_graphics('graphics/terrain/Tileset.png')
-                        tile_surface = coin_tile_list[int(val)]
                         sprite = Coin(tile_size, x, y, 4)
+                    
+                    if type == 'mi_coins':
+                        sprite = MIAnimatedTile(tile_size, x, y, 'graphics/coins/multi_image_coins')
                         
                     sprite_group.add(sprite)
                     
@@ -70,6 +75,10 @@ class Level:
         # coin
         self.coin_sprites.update(self.world_shift)
         self.coin_sprites.draw(self.display_surface)
+        
+        # mi_coins
+        self.mi_coin_sprites.update(self.world_shift)
+        self.mi_coin_sprites.draw(self.display_surface)
     
     def shift_world(self, shift_x):
         self.world_shift += shift_x
