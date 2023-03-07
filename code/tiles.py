@@ -15,6 +15,12 @@ class StaticTile(Tile):
         super().__init__(size, x, y)
         self.image = surface
 
+class House(StaticTile):
+	def __init__(self,size,x,y):
+		super().__init__(size,x,y,pygame.image.load('graphics/decoration/9 House/1.png').convert_alpha())
+		offset_y = y + size
+		self.rect = self.image.get_rect(bottomleft = (x,offset_y))
+
 class AnimatedSprite(pygame.sprite.Sprite):
     def __init__(self, size, x, y, frames, image_path, animation_speed):
         super().__init__()
