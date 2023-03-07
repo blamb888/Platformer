@@ -29,6 +29,14 @@ class Level:
         mi_coin_layout = import_csv_layout(level_data['mi_coins'])
         self.mi_coin_sprites = self.create_tile_group(mi_coin_layout, 'mi_coins')
         
+        # foreground trees
+        fg_trees = import_csv_layout(level_data['fg_trees'])
+        self.mi_coin_sprites = self.create_tile_group(fg_trees, 'fg_trees')
+        
+        # background trees
+        bg_trees = import_csv_layout(level_data['bg_trees'])
+        self.mi_coin_sprites = self.create_tile_group(bg_trees, 'bg_trees')
+        
     def create_tile_group(self, layout, type):
         sprite_group = pygame.sprite.Group()
         
@@ -53,6 +61,16 @@ class Level:
                     
                     if type == 'mi_coins':
                         sprite = MICoin(tile_size, x, y, 'graphics/coins/multi_image_coins')
+                    
+                    if type == 'fg_trees':
+                        fg_trees_tile_list = import_cut_graphics('graphics/terrain/Tileset.png')
+                        tile_surface = fg_trees_tile_list[int(val)]
+                        sprite = StaticTile(tile_size, x, y, tile_surface)
+                    
+                    if type == 'bg_trees':
+                        bg_trees_tile_list = import_cut_graphics('graphics/terrain/Tileset.png')
+                        tile_surface = bg_trees_tile_list[int(val)]
+                        sprite = StaticTile(tile_size, x, y, tile_surface)
                         
                     sprite_group.add(sprite)
                     
