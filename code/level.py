@@ -5,12 +5,13 @@ from tiles import Tile, House, StaticTile, MICoin, AnimatedSprite, Coin
 from background import Background
 from enemy import Enemy
 from set_dressing import Sky, Water, Clouds
+# from player import Player
 
 class Level:
     def __init__(self, level_data, surface):
         # general setup
         self.display_surface = surface
-        self.world_shift = -1
+        self.world_shift = 0
         
         self.background = Background(surface)
         
@@ -127,7 +128,10 @@ class Level:
                 x = col_index * tile_size
                 y = row_index * tile_size
                 if val == '0':
-                    print('player goes here')
+                    idle_image_path = "graphics/character/Owlet_Monster_Idle_4.png"
+                    sprite = AnimatedSprite(tile_size, x, y, 4, idle_image_path, 10)
+                    self.player.add(sprite)
+
                 if val == '1':
                     image_path = 'graphics/character/Flag.png'
                     sprite = AnimatedSprite(tile_size, x, y, 4, image_path, 10)
@@ -190,6 +194,8 @@ class Level:
         # player sprites
         self.goal.update(self.world_shift)
         self.goal.draw(self.display_surface)
+        self.player.update(self.world_shift)
+        self.player.draw(self.display_surface)
         
         # water
         self.water.draw(self.display_surface, self.world_shift)
