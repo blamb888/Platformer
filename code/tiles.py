@@ -46,6 +46,10 @@ class AnimatedSprite(pygame.sprite.Sprite):
                 self.index = 0
             self.image = self.images[self.index]
 
+class Coin(AnimatedSprite):
+    def __init__(self, size, x, y, frames):
+        super().__init__(size, x, y, frames, "graphics/coins/Coin.png", 10)
+
 class MIAnimatedTile(Tile):
     def __init__(self, size, x, y, path):
         super().__init__(size, x, y)
@@ -63,6 +67,9 @@ class MIAnimatedTile(Tile):
         self.animate()
         self.rect.x += shift
 
-class Coin(AnimatedSprite):
-    def __init__(self, size, x, y, frames):
-        super().__init__(size, x, y, frames, "graphics/coins/Coin.png", 10)
+class MICoin(MIAnimatedTile):
+    def __init__(self, size, x, y, path):
+        super().__init__(size, x, y, path)
+        center_x = x + int(size / 2)
+        center_y = y + int(size / 2)
+        self.rect = self.image.get_rect(center = (center_x, center_y))

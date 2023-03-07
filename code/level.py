@@ -1,7 +1,7 @@
 import pygame
 from support import import_csv_layout, import_cut_graphics
 from settings import *
-from tiles import Tile, StaticTile, MIAnimatedTile, Coin
+from tiles import StaticTile, MICoin, Coin
 from background import Background
 
 
@@ -52,7 +52,7 @@ class Level:
                         sprite = Coin(tile_size, x, y, 4)
                     
                     if type == 'mi_coins':
-                        sprite = MIAnimatedTile(tile_size, x, y, 'graphics/coins/multi_image_coins')
+                        sprite = MICoin(tile_size, x, y, 'graphics/coins/multi_image_coins')
                         
                     sprite_group.add(sprite)
                     
