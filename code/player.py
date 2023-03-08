@@ -1,6 +1,6 @@
 import pygame
 from tiles import AnimatedSprite
-from settings import tile_size
+from settings import tile_size, screen_height, screen_width
 
 class Player:
     def __init__(self, x, y):
