@@ -52,6 +52,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
                 self.index = 0
             self.image = self.images[self.index]
 
+
 class Coin(AnimatedSprite):
     def __init__(self, size, x, y, frames):
         super().__init__(size, x, y, frames, "graphics/coins/Coin.png", 10)

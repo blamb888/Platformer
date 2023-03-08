@@ -2,19 +2,30 @@ import pygame
 from tiles import AnimatedSprite
 from settings import tile_size, screen_height, screen_width
 
-class Player:
+
+class Player(AnimatedSprite):
     def __init__(self, x, y):
+        self.world_shift = 0
+        size = tile_size
+        frames = 6
+        animation_speed = 10
         idle_image_path = "graphics/character/Owlet_Monster_Idle_4.png"
         walk_image_path = "graphics/character/Owlet_Monster_Walk_6.png"
         run_image_path = "graphics/character/Owlet_Monster_Run_6.png"
         jump_image_path = "graphics/character/Owlet_Monster_Jump_8.png"
         dust_image_path = "graphics/character/Walk_Run_Push_Dust_6.png"
+        super().__init__(size, x, y, frames, idle_image_path, animation_speed)
 
-        self.idle_animation = AnimatedSprite(idle_image_path, tile_size, x, y, 4, 10)
-        self.walk_animation = AnimatedSprite(walk_image_path, tile_size, x, y, 6, 10)
-        self.run_animation = AnimatedSprite(run_image_path, tile_size, x, y, 6, 10)
-        self.jump_animation = AnimatedSprite(jump_image_path, tile_size, x, y, 8, 10)
-        self.dust_animation = AnimatedSprite(dust_image_path, tile_size, x, y, 6, 10)
+        self.idle_animation = AnimatedSprite(
+            tile_size, x, y, 4, idle_image_path, 10)
+        self.walk_animation = AnimatedSprite(
+            tile_size, x, y, 6, walk_image_path, 10)
+        self.run_animation = AnimatedSprite(
+            tile_size, x, y, 6, run_image_path, 10)
+        self.jump_animation = AnimatedSprite(
+            tile_size, x, y, 8, jump_image_path, 10)
+        self.dust_animation = AnimatedSprite(
+            tile_size, x, y, 6, dust_image_path, 10)
 
         self.animations = {"idle": self.idle_animation,
                            "walk": self.walk_animation,
@@ -22,8 +33,9 @@ class Player:
                            "jump": self.jump_animation}
 
         self.current_animation = self.idle_animation
-        self.current_animation.play()
-        self.rect = pygame.Rect(x, y, self.current_animation.width, self.current_animation.height)
+        self.current_animation.update(self.world_shift)
+        self.rect = pygame.Rect(
+            x, y, self.current_animation.frame_width, self.current_animation.frame_height)
 
         self.move_speed = 5
         self.jump_speed = -10
@@ -61,23 +73,23 @@ class Player:
             self.current_animation.play()
             self.velocity_y = self.jump_speed
 
-				# Apply gravity
+            # Apply gravity
         self.velocity_y += self.gravity
         self.rect.y += self.velocity_y
 
-				# Check for collision with the bottom of the screen
+        # Check for collision with the bottom of the screen
         if self.rect.bottom >= screen_height:
-          self.rect.bottom = screen_height
-          self.velocity_y = 0
-          self.on_ground = True
+            self.rect.bottom = screen_height
+            self.velocity_y = 0
+            self.on_ground = True
 
-				# Draw dust animation when moving
-        if self.move_speed > 0:
-          dust_pos = (self.rect.x - 20, self.rect.y + self.current_animation.height - 20)
-          self.dust_animation.draw(surface, *dust_pos)
+            # Draw dust animation when moving
+        # if self.move_speed > 0:
+        #   dust_pos = (self.rect.x - 20, self.rect.y + self.current_animation.height - 20)
+        #   self.dust_animation.draw(surface, * dust_pos)
 
         # Draw hitbox
-        pygame.draw.rect(surface, (255, 0, 0), self.rect, 2)
+        # pygame.draw.rect(surface, (255, 0, 0), self.rect, 2)
 
     def collide_with_obstacle(self, obstacle_rect):
         """
@@ -106,19 +118,21 @@ class Player:
         """
         for obstacle in obstacles:
             self.collide_with_obstacle(obstacle.rect)
-            
-    def draw(self, surface):
-			# Draw the current animation
-      self.current_animation.draw(surface, self.rect.x, self.rect.y)
-			
-			# Draw dust animation when moving
-      if self.move_speed > 0:
-        dust_pos = (self.rect.x - 20, self.rect.y + self.current_animation.height - 20)
-        self.dust_animation.draw(surface, *dust_pos)
-					
-			# Draw hitbox
-      pygame.draw.rect(surface, (255, 0, 0), self.rect, 2)
 
-			# Draw collision box for debugging
-      collision_rect = pygame.Rect(self.rect.x, self.rect.y + self.current_animation.height - 10, self.rect.width, 10)
-      pygame.draw.rect(surface, (0, 255, 0), collision_rect, 2)   
+    def draw(self, surface):
+        # Draw the current animation
+        self.current_animation.draw(surface, self.rect.x, self.rect.y)
+
+        # Draw dust animation when moving
+        if self.move_speed > 0:
+            dust_pos = (self.rect.x - 20, self.rect.y +
+                        self.current_animation.height - 20)
+            self.dust_animation.draw(surface, *dust_pos)
+
+            # Draw hitbox
+        pygame.draw.rect(surface, (255, 0, 0), self.rect, 2)
+
+        # Draw collision box for debugging
+        collision_rect = pygame.Rect(
+            self.rect.x, self.rect.y + self.current_animation.height - 10, self.rect.width, 10)
+        pygame.draw.rect(surface, (0, 255, 0), collision_rect, 2)

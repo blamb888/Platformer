@@ -5,7 +5,7 @@ from tiles import Tile, House, StaticTile, MICoin, AnimatedSprite, Coin
 from background import Background
 from enemy import Enemy
 from set_dressing import Sky, Water, Clouds
-# from player import Player
+from player import Player
 
 class Level:
     def __init__(self, level_data, surface):
@@ -17,7 +17,7 @@ class Level:
         
         # player
         player_layout = import_csv_layout(level_data['player'])
-        self.player = pygame.sprite.GroupSingle()
+        self.player = pygame.sprite.Group()
         self.goal = pygame.sprite.GroupSingle()
         self.player_setup(player_layout)
         
@@ -129,7 +129,7 @@ class Level:
                 y = row_index * tile_size
                 if val == '0':
                     idle_image_path = "graphics/character/Owlet_Monster_Idle_4.png"
-                    sprite = AnimatedSprite(tile_size, x, y, 4, idle_image_path, 10)
+                    sprite = Player(x, y)
                     self.player.add(sprite)
 
                 if val == '1':
@@ -141,8 +141,22 @@ class Level:
         for enemy in self.enemy_sprites.sprites():
             if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False):
                 enemy.reverse()
-    
-    def run(self):
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.playing = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.playing = False
+
+        # Get the current state of the keyboard keys
+        keys = pygame.key.get_pressed()
+        
+        self.player.update(self.world_shift, keys, dt)
+
+        
+    def run(self, dt):
         # run the entire game / level
         
         # background
@@ -194,7 +208,6 @@ class Level:
         # player sprites
         self.goal.update(self.world_shift)
         self.goal.draw(self.display_surface)
-        self.player.update(self.world_shift)
         self.player.draw(self.display_surface)
         
         # water

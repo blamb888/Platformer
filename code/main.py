@@ -8,6 +8,7 @@ pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()
 level = Level(level_0, screen)
+dt = 0  # Define the dt variable here
 
 while True:
     for event in pygame.event.get():
@@ -16,7 +17,8 @@ while True:
             sys.exit()
     
     screen.fill('black')
-    level.run()
+    dt = clock.tick(60) / 1000.0  # Update the dt variable here
+    level.run(dt)  # Pass the dt variable to the run() method
     
     pygame.display.update()
     clock.tick(60)
