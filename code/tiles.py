@@ -56,6 +56,9 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.playing = True
         self.current_frame = 0  # reset the current frame to the beginning of the animation
 
+class PlayerSprite(AnimatedSprite):
+    def __init__(self, size, x, y, frames):
+        super().__init__(size, x, y, frames, "graphics/character/Owlet_Monster_Idle_4.png", 10)
 
 class Coin(AnimatedSprite):
     def __init__(self, size, x, y, frames):

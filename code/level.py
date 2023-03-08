@@ -17,7 +17,7 @@ class Level:
         
         # player
         player_layout = import_csv_layout(level_data['player'])
-        self.player = pygame.sprite.Group()
+        self.player = pygame.sprite.GroupSingle()
         self.goal = pygame.sprite.GroupSingle()
         self.player_setup(player_layout)
         
@@ -129,7 +129,7 @@ class Level:
                 y = row_index * tile_size
                 if val == '0':
                     idle_image_path = "graphics/character/Owlet_Monster_Idle_4.png"
-                    sprite = Player(x, y)
+                    sprite = AnimatedSprite(tile_size, x, y, 4, idle_image_path, 10)
                     self.player.add(sprite)
 
                 if val == '1':
@@ -141,16 +141,9 @@ class Level:
         for enemy in self.enemy_sprites.sprites():
             if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False):
                 enemy.reverse()
-
-        
-    def run(self, dt):
+    
+    def run(self):
         # run the entire game / level
-
-        # Get the state of all keyboard keys
-        keys = pygame.key.get_pressed()
-
-        # Update the player
-        self.player.update(keys, dt)
         
         # background
         self.background.update(self.world_shift)
@@ -201,6 +194,7 @@ class Level:
         # player sprites
         self.goal.update(self.world_shift)
         self.goal.draw(self.display_surface)
+        self.player.update(self.world_shift)
         self.player.draw(self.display_surface)
         
         # water

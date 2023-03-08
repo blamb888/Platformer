@@ -18,7 +18,7 @@ while True:
     
     screen.fill('black')
     dt = clock.tick(60) / 1000.0  # Update the dt variable here
-    level.run(dt)  # Pass the dt variable to the run() method
+    level.run()  # Pass the dt variable to the run() method
     
     pygame.display.update()
     clock.tick(60)
