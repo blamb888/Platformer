@@ -142,22 +142,15 @@ class Level:
             if pygame.sprite.spritecollide(enemy, self.constraint_sprites, False):
                 enemy.reverse()
 
-    def handle_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.playing = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    self.playing = False
-
-        # Get the current state of the keyboard keys
-        keys = pygame.key.get_pressed()
-        
-        self.player.update(self.world_shift, keys, dt)
-
         
     def run(self, dt):
         # run the entire game / level
+
+        # Get the state of all keyboard keys
+        keys = pygame.key.get_pressed()
+
+        # Update the player
+        self.player.update(keys, dt)
         
         # background
         self.background.update(self.world_shift)
