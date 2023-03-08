@@ -24,7 +24,6 @@ class House(StaticTile):
 class AnimatedSprite(pygame.sprite.Sprite):
     def __init__(self, size, x, y, frames, image_path, animation_speed):
         super().__init__()
-        self.playing = False  # initialize playing attribute to False
         self.sheet = pygame.image.load(image_path).convert_alpha()
         self.images = []
         self.sheet_width, self.sheet_height = self.sheet.get_size()
@@ -41,18 +40,17 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.image = self.images[self.index]
         self.animation_speed = animation_speed
         self.counter = 0
-        self.rect = self.image.get_rect(center=(x + size // 2, y + size // 2))  # use center position
+        self.rect = self.image.get_rect(topleft = (x,y))
 
     def update(self, shift):
-        if self.playing:  # only advance the animation if playing is True
-            self.rect.x += shift
-            self.counter += 1
-            if self.counter >= self.animation_speed:
-                self.counter = 0
-                self.index += 1
-                if self.index >= len(self.images):
-                    self.index = 0
-                self.image = self.images[self.index]
+        self.rect.x += shift
+        self.counter += 1
+        if self.counter >= self.animation_speed:
+            self.counter = 0
+            self.index += 1
+            if self.index >= len(self.images):
+                self.index = 0
+            self.image = self.images[self.index]
     
     def play(self):
         self.playing = True
