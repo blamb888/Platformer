@@ -1,138 +1,123 @@
-import pygame
+import pygame 
+from support import import_folder
 from tiles import AnimatedSprite
-from settings import tile_size, screen_height, screen_width
 
+class Player(pygame.sprite.Sprite):
+    def __init__(self,pos,surface):
+        super().__init__()
+        self.import_character_assets()
+        self.frame_index = 0
+        self.animation_speed = 0.15
+        self.image = self.animations['run'][self.frame_index]
+        self.rect = self.image.get_rect(topleft = pos)
+        
 
-class Player(AnimatedSprite):
-    def __init__(self, x, y):
-        self.world_shift = 0
-        size = tile_size
-        frames = 6
-        animation_speed = 10
+        # player movement
+        self.direction = pygame.math.Vector2(0,0)
+        self.speed = 8
+        self.gravity = 0.8
+        self.jump_speed = -16
+
+        # player status
+        self.status = 'idle'
+        self.facing_right = True
+        self.on_ground = False
+        self.on_ceiling = False
+        self.on_left = False
+        self.on_right = False
+
+    def import_character_assets(self):
         idle_image_path = "graphics/character/Owlet_Monster_Idle_4.png"
         walk_image_path = "graphics/character/Owlet_Monster_Walk_6.png"
         run_image_path = "graphics/character/Owlet_Monster_Run_6.png"
         jump_image_path = "graphics/character/Owlet_Monster_Jump_8.png"
-        dust_image_path = "graphics/character/Walk_Run_Push_Dust_6.png"
-        super().__init__(size, x, y, frames, idle_image_path, animation_speed)
+        self.animations = {'idle':[],'run':[],'jump':[],'fall':[]}
 
-        self.idle_animation = AnimatedSprite(
-            tile_size, x, y, 4, idle_image_path, 10)
-        self.walk_animation = AnimatedSprite(
-            tile_size, x, y, 6, walk_image_path, 10)
-        self.run_animation = AnimatedSprite(
-            tile_size, x, y, 6, run_image_path, 10)
-        self.jump_animation = AnimatedSprite(
-            tile_size, x, y, 8, jump_image_path, 10)
-        self.dust_animation = AnimatedSprite(
-            tile_size, x, y, 6, dust_image_path, 10)
+        self.animations['idle'] = []
+        idle_anim = AnimatedSprite((128, 128), 0, 0, 4, idle_image_path, 10)
+        self.animations['idle'] = idle_anim.images
 
-        self.animations = {"idle": self.idle_animation,
-                           "walk": self.walk_animation,
-                           "run": self.run_animation,
-                           "jump": self.jump_animation}
+        self.animations['run'] = []
+        run_anim = AnimatedSprite((128, 128), 0, 0, 6, run_image_path, 10)
+        self.animations['run'] = run_anim.images
 
-        self.current_animation = self.idle_animation
-        self.current_animation.update(self.world_shift)
-        self.rect = pygame.Rect(
-            x, y, self.current_animation.frame_width, self.current_animation.frame_height)
+        self.animations['jump'] = []
+        jump_anim = AnimatedSprite((128, 128), 0, 0, 8, jump_image_path, 10)
+        self.animations['jump'] = jump_anim.images
 
-        self.move_speed = 5
-        self.jump_speed = -10
-        self.gravity = 0.5
-        self.velocity_y = 0
-        self.on_ground = False
+        self.animations['fall'] = []
+        fall_anim = AnimatedSprite((128, 128), 0, 0, 8, jump_image_path, 10)
+        self.animations['fall'] = fall_anim.images[::-1]
 
-    def update(self, keys, dt):
-        # Update the animation based on the player's state
-        if self.on_ground:
-            if keys[pygame.K_a] or keys[pygame.K_d]:
-                if keys[pygame.K_LSHIFT]:
-                    self.current_animation = self.run_animation
-                    self.move_speed = 8
-                else:
-                    self.current_animation = self.walk_animation
-                    self.move_speed = 5
-            else:
-                self.current_animation = self.idle_animation
-                self.move_speed = 0
+    def animate(self):
+        animation = self.animations[self.status]
+
+        # Check if the animation is an instance of AnimatedSprite
+        if isinstance(animation, AnimatedSprite):
+            animation.update(0)
+            self.image = animation.image
         else:
-            self.current_animation = self.jump_animation
+            # loop over frame index 
+            self.frame_index += self.animation_speed
+            if self.frame_index >= len(animation):
+                self.frame_index = 0
 
-        # Update the current animation
-        self.current_animation.update(dt)
+            image = animation[int(self.frame_index)]
+            if self.facing_right:
+                self.image = image
+            else:
+                flipped_image = pygame.transform.flip(image,True,False)
+                self.image = flipped_image
 
-        # Update the player's position based on keyboard input
-        if keys[pygame.K_a]:
-            self.rect.x -= self.move_speed
-        if keys[pygame.K_d]:
-            self.rect.x += self.move_speed
+        # set the rect
+        if self.on_ground and self.on_right:
+            self.rect = self.image.get_rect(bottomright = self.rect.bottomright)
+        elif self.on_ground and self.on_left:
+            self.rect = self.image.get_rect(bottomleft = self.rect.bottomleft)
+        elif self.on_ground:
+            self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
+        elif self.on_ceiling and self.on_right:
+            self.rect = self.image.get_rect(topright = self.rect.topright)
+        elif self.on_ceiling and self.on_left:
+            self.rect = self.image.get_rect(topleft = self.rect.topleft)
+        elif self.on_ceiling:
+            self.rect = self.image.get_rect(midtop = self.rect.midtop)
+
+
+    def get_input(self):
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_RIGHT]:
+            self.direction.x = 1
+            self.facing_right = True
+        elif keys[pygame.K_LEFT]:
+            self.direction.x = -1
+            self.facing_right = False
+        else:
+            self.direction.x = 0
+
         if keys[pygame.K_SPACE] and self.on_ground:
-            self.on_ground = False
-            self.current_animation = self.jump_animation
-            self.current_animation.play()
-            self.velocity_y = self.jump_speed
+            self.jump()
 
-            # Apply gravity
-        self.velocity_y += self.gravity
-        self.rect.y += self.velocity_y
+    def get_status(self):
+        if self.direction.y < 0:
+            self.status = 'jump'
+        elif self.direction.y > 1:
+            self.status = 'fall'
+        else:
+            if self.direction.x != 0:
+                self.status = 'run'
+            else:
+                self.status = 'idle'
 
-        # Check for collision with the bottom of the screen
-        if self.rect.bottom >= screen_height:
-            self.rect.bottom = screen_height
-            self.velocity_y = 0
-            self.on_ground = True
+    def apply_gravity(self):
+        self.direction.y += self.gravity
+        self.rect.y += self.direction.y
 
-            # Draw dust animation when moving
-        # if self.move_speed > 0:
-        #   dust_pos = (self.rect.x - 20, self.rect.y + self.current_animation.height - 20)
-        #   self.dust_animation.draw(surface, * dust_pos)
+    def jump(self):
+        self.direction.y = self.jump_speed
 
-        # Draw hitbox
-        # pygame.draw.rect(surface, (255, 0, 0), self.rect, 2)
-
-    def collide_with_obstacle(self, obstacle_rect):
-        """
-        Check if the player collides with an obstacle.
-        """
-        if self.rect.colliderect(obstacle_rect):
-            # Check if the player is above the obstacle
-            if self.rect.bottom <= obstacle_rect.top + 10:
-                self.rect.bottom = obstacle_rect.top
-                self.on_ground = True
-                self.velocity_y = 0
-            # Check if the player is below the obstacle
-            elif self.rect.top >= obstacle_rect.bottom - 10:
-                self.rect.top = obstacle_rect.bottom
-                self.velocity_y = 0
-            # Check if the player is to the left of the obstacle
-            elif self.rect.right <= obstacle_rect.left + 10:
-                self.rect.right = obstacle_rect.left
-            # Check if the player is to the right of the obstacle
-            elif self.rect.left >= obstacle_rect.right - 10:
-                self.rect.left = obstacle_rect.right
-
-    def check_for_collisions(self, obstacles):
-        """
-        Check for collisions with obstacles.
-        """
-        for obstacle in obstacles:
-            self.collide_with_obstacle(obstacle.rect)
-
-    def draw(self, surface):
-        # Draw the current animation
-        self.current_animation.draw(surface, self.rect.x, self.rect.y)
-
-        # Draw dust animation when moving
-        if self.move_speed > 0:
-            dust_pos = (self.rect.x - 20, self.rect.y +
-                        self.current_animation.height - 20)
-            self.dust_animation.draw(surface, *dust_pos)
-
-            # Draw hitbox
-        pygame.draw.rect(surface, (255, 0, 0), self.rect, 2)
-
-        # Draw collision box for debugging
-        collision_rect = pygame.Rect(
-            self.rect.x, self.rect.y + self.current_animation.height - 10, self.rect.width, 10)
-        pygame.draw.rect(surface, (0, 255, 0), collision_rect, 2)
+    def update(self):
+        self.get_input()
+        self.get_status()
+        self.animate()
